@@ -1540,6 +1540,8 @@ function menuSpec() {
     { label: 'Effects', items: ['Artistic', 'Blurs', 'Distort', 'Noise', 'Photo', 'Render', 'Stylize'].map(c => ({ label: c, submenu: () => fxMenu(c) })) },
     { label: 'Help', items: [
       { label: 'Keyboard Shortcuts…', key: 'F1', icon: 'app.help', action: showShortcuts },
+      '-',
+      { label: () => (isInstalled() ? 'Installed as an App' : 'Install App…'), icon: 'app.install', enabled: () => !isInstalled(), action: installApp },
       { label: 'About PaintDotRust…', icon: 'app.info', action: showAbout },
     ] },
   ];
@@ -2565,6 +2567,88 @@ function showAbout() {
     el('p', { class: 'hint' }, 'MIT License. Icons: Lucide (ISC). Paint.NET is a trademark of dotPDN LLC; this project is not affiliated with it.')), { buttons: [['Close', 'ok', true]] });
 }
 
+// ------------------------------------------------------------------ installable app
+
+/** Running as an installed app (home screen / dock), not in a browser tab. */
+function isInstalled() {
+  return matchMedia('(display-mode: standalone)').matches || matchMedia('(display-mode: window-controls-overlay)').matches || navigator.standalone === true;
+}
+
+// Chromium browsers offer installation through this event; it's kept so the
+// Help menu can bring the prompt up (the browser's own install UI still works).
+let installPrompt = null;
+addEventListener('beforeinstallprompt', e => { installPrompt = e; });
+addEventListener('appinstalled', () => { installPrompt = null; status('PaintDotRust was installed as an app'); });
+
+async function installApp() {
+  if (installPrompt) {
+    const p = installPrompt;
+    installPrompt = null; // single use
+    await p.prompt();
+    const { outcome } = await p.userChoice;
+    if (outcome === 'accepted') status('Installing PaintDotRust…');
+    return;
+  }
+  // No prompt (Safari, Firefox, or already dismissed): explain how.
+  const ua = navigator.userAgent;
+  const ios = /iPad|iPhone|iPod/.test(ua) || (navigator.platform === 'MacIntel' && navigator.maxTouchPoints > 1);
+  const mac = /Macintosh/.test(ua) && !ios && /Safari/.test(ua) && !/Chrome|Chromium|Edg|Firefox/.test(ua);
+  const android = /Android/.test(ua);
+  const steps = ios
+    ? ['Tap the Share button (the square with an arrow) in Safari\u2019s toolbar.', 'Choose \u201cAdd to Home Screen\u201d.', 'Tap \u201cAdd\u201d. PaintDotRust then opens full screen from its icon, and works offline.']
+    : mac
+      ? ['In Safari\u2019s menu bar choose File \u2192 Add to Dock\u2026 (or Share \u2192 Add to Dock).']
+      : android
+        ? ['Open the browser menu (\u22ee).', 'Choose \u201cInstall app\u201d or \u201cAdd to Home screen\u201d.']
+        : ['Use the install icon at the right of the address bar, or the browser menu\u2019s \u201cInstall PaintDotRust\u201d / \u201cApps\u201d item.', 'Firefox on desktop can\u2019t install web apps; Chrome, Edge and Safari can.'];
+  await D.modal('Install PaintDotRust', b => b.append(
+    el('p', { class: 'message' }, 'Install PaintDotRust to open it from your home screen, dock or app list, in its own window, even without a connection.'),
+    el('ol', { class: 'install-steps' }, ...steps.map(t => el('li', {}, t)))), { buttons: [['OK', 'ok', true]] });
+}
+
+/** Offline support and share target (sw.js). Not for file:// pages. */
+function registerServiceWorker() {
+  if (!('serviceWorker' in navigator) || !/^https?:$/.test(location.protocol)) return;
+  navigator.serviceWorker.register('sw.js').catch(e => console.info('Offline support unavailable:', e.message));
+}
+
+/**
+ * Files handed to the app: opened with it from the system ("Open with",
+ * double-click, when installed), shared to it (Android share sheet), or a
+ * home-screen shortcut (?action=new).
+ */
+async function handleLaunch() {
+  if ('launchQueue' in window) {
+    launchQueue.setConsumer(async params => {
+      for (const h of params.files ?? []) {
+        try { await openFile(await h.getFile(), h); } catch (e) { D.message('Open', `Couldn't open a file: ${e.message}`); }
+      }
+    });
+  }
+  const params = new URLSearchParams(location.search);
+  if (params.has('shared') && 'caches' in window) {
+    try {
+      const cache = await caches.open('paintdotrust-shared');
+      for (const req of await cache.keys()) {
+        const res = await cache.match(req);
+        await cache.delete(req);
+        if (!res) continue;
+        const name = decodeURIComponent(res.headers.get('X-File-Name') || 'shared image');
+        await openFile(new File([await res.blob()], name, { type: res.headers.get('Content-Type') || '' }));
+      }
+    } catch (e) { D.message('Open', `Couldn't open the shared file: ${e.message}`); }
+  }
+  const action = params.get('action');
+  // Tidy the address (no re-run on reload); keep any engine choice.
+  if (params.has('shared') || action) {
+    params.delete('shared');
+    params.delete('action');
+    const q = params.toString();
+    history.replaceState(null, '', location.pathname + (q ? `?${q}` : '') + location.hash);
+  }
+  if (action === 'new') fileNew();
+}
+
 // ------------------------------------------------------------------ drag & drop, theme, boot
 
 function wireDragDrop() {
@@ -2705,6 +2789,8 @@ async function boot() {
   window.openpdn = app; // for debugging and tests
   app.runFx = runFx;
   status(`Ready — engine: ${app.mode}, renderer: ${app.view.backend}`);
+  registerServiceWorker();
+  handleLaunch();
 }
 
 boot();

@@ -1,0 +1,11 @@
+[package]
+name = "openpdn-parity"
+description = "Script interpreter for parity tests against the C# port, and benchmarks"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+openpdn-core = { path = "../openpdn-core" }
+openpdn-formats = { path = "../openpdn-formats" }

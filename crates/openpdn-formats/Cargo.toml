@@ -1,0 +1,16 @@
+[package]
+name = "openpdn-formats"
+description = "OpenPDN file formats: PNG (with text chunks), .openpdn, legacy .pdn"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["parallel"]
+parallel = ["dep:rayon", "openpdn-core/parallel"]
+
+[dependencies]
+openpdn-core = { path = "../openpdn-core", default-features = false }
+miniz_oxide = { version = "0.8", default-features = false, features = ["with-alloc"] }
+rayon = { version = "1.10", optional = true }

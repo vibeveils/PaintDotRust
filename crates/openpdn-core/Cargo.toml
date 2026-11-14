@@ -1,0 +1,17 @@
+[package]
+name = "openpdn-core"
+description = "OpenPDN image engine: surfaces, layers, selections, history, tools"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["parallel"]
+# Row-parallel kernels via rayon (native threads, or wasm threads under COOP/COEP).
+parallel = ["dep:rayon"]
+
+[dependencies]
+rayon = { version = "1.10", optional = true }
+
+[dev-dependencies]

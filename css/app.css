@@ -429,3 +429,8 @@ textarea { width: 100%; border: 1px solid var(--border); background: var(--panel
   .picker { flex-wrap: wrap; }
   .hint, .message { max-width: none; }
 }
+
+/* Installed app: no pull-to-refresh or bounce (a stray swipe must not reload and lose work). */
+html, body { overscroll-behavior: none; }
+.install-steps { margin: 8px 0 0; padding-left: 22px; max-width: 420px; }
+.install-steps li { margin: 6px 0; }

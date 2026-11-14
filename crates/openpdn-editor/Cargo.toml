@@ -1,0 +1,15 @@
+[package]
+name = "openpdn-editor"
+description = "OpenPDN application model: documents, history, tools, menu commands, previews; one message API"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+rust-version.workspace = true
+
+[features]
+default = ["parallel"]
+parallel = ["openpdn-core/parallel", "openpdn-formats/parallel"]
+
+[dependencies]
+openpdn-core = { path = "../openpdn-core", default-features = false }
+openpdn-formats = { path = "../openpdn-formats", default-features = false }

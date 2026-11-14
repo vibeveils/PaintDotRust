@@ -1,0 +1,12 @@
+[package]
+name = "openpdn-devserver"
+description = "Development host: serves the web UI and runs the editor natively behind a WebSocket"
+version.workspace = true
+edition.workspace = true
+license.workspace = true
+publish = false
+
+[dependencies]
+openpdn-editor = { path = "../openpdn-editor" }
+openpdn-formats = { path = "../openpdn-formats" }
+tungstenite = { version = "0.24", default-features = false, features = ["handshake"] }
