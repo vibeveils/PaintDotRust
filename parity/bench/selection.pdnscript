@@ -1,0 +1,15 @@
+# Selection mask operations on 12 MP.
+doc 4000 3000
+sel-ellipse 200 200 3500 2600
+sel-feather 12
+sel-grow 20
+sel-shrink 15
+tool Lasso
+down 100 100 L
+move 3800 200
+move 3900 2800
+move 2000 2900
+move 200 2500
+up 200 2500 L
+tool Move Selection
+drag L 2000 1500 2100 1600 10

@@ -1,0 +1,59 @@
+# Every adjustment, whole layer and through a feathered selection.
+doc 91 73
+noise 41 random
+adjust invert
+dump invert
+adjust desaturate
+dump desaturate
+doc 91 73
+noise 42 random
+adjust sepia
+dump sepia
+doc 91 73
+noise 43 random
+adjust brightness-contrast 30 -40
+dump bc1
+adjust brightness-contrast -20 60
+dump bc2
+adjust brightness-contrast 10 100
+dump bc3
+adjust brightness-contrast 0 0
+dump bc4
+doc 91 73
+noise 44 random
+adjust hue-sat 45 130 20
+dump hs1
+adjust hue-sat -170 40 -60
+dump hs2
+adjust hue-sat 0 0 0
+dump hs3
+doc 91 73
+noise 45 random
+adjust posterize 2 5 64
+dump posterize
+doc 91 73
+noise 46 random
+adjust levels 102030 E0D0C0 0.7 1.4 2.2 000000 FFFFFF
+dump levels
+adjust levels 000000 FFFFFF 1 1 1 304050 C0B0A0
+dump levels-out
+doc 91 73
+pattern 9
+noise 47 opaque
+adjust levels-auto
+dump levels-auto
+doc 91 73
+noise 48 random
+adjust curves-lum 0:0,64:100,190:170,255:255
+dump curves-lum
+adjust curves-rgb 0:30,255:220 0:0,128:200,255:255 0:255,100:20,255:0
+dump curves-rgb
+doc 91 73
+noise 49 opaque
+adjust red-eye 40 90
+dump red-eye
+sel-ellipse 10 10 60 50
+sel-feather 4
+adjust invert
+adjust hue-sat 90 150 0
+dump sel-adjust

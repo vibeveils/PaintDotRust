@@ -1,0 +1,31 @@
+# Selection shapes, combine modes and mask operations.
+doc 120 90
+noise 11 opaque
+sel-ellipse 10 7 63 41
+dump ellipse
+sel-ellipse -20 -10 70 50
+dump ellipse-clipped
+sel-feather 3
+dump feathered
+sel-rect 20 20 50 30
+sel-grow 4
+dump grown
+sel-shrink 2
+dump shrunk
+sel-ellipse 30 10 61 61
+sel-shrink 5
+dump ellipse-shrunk
+sel-invert
+dump inverted
+sel-all
+sel-shrink 1
+dump all-shrunk
+sel-ellipse 5 5 80 60
+sel-erase
+dump erased
+sel-ellipse 40 20 70 50
+sel-feather 2
+sel-fill 3366CC80
+dump filled
+sel-none
+dump nosel

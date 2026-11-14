@@ -1,0 +1,15 @@
+# Bucket fill and magic wand on large regions.
+doc 4000 3000
+pattern 500
+tool Fill
+fg 102030
+down 10 10 L
+up 10 10 L
+down 600 10 L C
+up 600 10 L C
+tool Magic Wand
+set tolerance 64
+down 1200 10 L
+up 1200 10 L
+down 1500 1500 L C
+up 1500 1500 L C

@@ -1,0 +1,43 @@
+# Bucket fill (layer and image sampling) and the colour picker.
+doc 120 90
+pattern 9
+layer-add
+fg 0000FFFF
+tool Fill
+down 5 5 L
+up 5 5 L
+dump fill-empty-layer
+undo
+layer-active 0
+down 1 1 L
+up 1 1 L
+dump fill-layer
+down 1 1 L
+up 1 1 L
+dump fill-same-color-noop
+bg FFFF0080
+down 30 30 R
+up 30 30 R
+dump fill-right
+layer-active 1
+set sampleall 1
+down 50 50 L
+up 50 50 L
+dump fill-sample-all
+down 70 10 L C
+up 70 10 L C
+dump fill-ctrl-toggle
+set sampleall 0
+sel-ellipse 0 0 60 60
+layer-active 0
+fg 123456
+down 20 20 L
+up 20 20 L
+dump fill-in-sel
+tool Eyedropper
+down 40 40 L
+down 100 80 R C
+colors picker
+set sampleall 1
+down 5 5 L
+colors picker-all

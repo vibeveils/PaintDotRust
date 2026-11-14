@@ -1,0 +1,30 @@
+# Move Selected Pixels: translate and scale with each resampling mode.
+doc 130 100
+noise 21 random
+sel-ellipse 20 20 60 40
+tool Move
+drag L 50 40 70 55 4
+dump move-ellipse
+undo
+dump move-undone
+set resampling NearestNeighbor
+drag L 80 60 110 90 3
+dump nn-scale-up
+undo
+set resampling NearestNeighborAntialiased
+drag L 80 60 60 50 3
+dump nnaa-scale-down
+undo
+set resampling Bilinear
+drag L 80 60 120 75 3 S
+dump bilinear-shift
+undo
+sel-none
+drag L 30 30 45 20 3
+dump whole-layer
+undo
+handle-radius 5
+drag L 130 100 90 70 2
+dump whole-layer-scale
+drag L 10 10 10 10 1
+dump no-op

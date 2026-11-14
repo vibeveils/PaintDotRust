@@ -1,0 +1,14 @@
+# Shape tools (redrawn per move) and gradients on 12 MP.
+doc 4000 3000
+noise 7 opaque
+tool Ellipse
+set shape FillOutline
+set brush 9
+drag L 100 100 3000 2500 60
+tool Line
+drag L 10 10 3990 2990 60
+tool Gradient
+set gradient Radial
+drag L 2000 1500 3500 2500 20
+set gradient Conical
+drag L 2000 1500 2500 300 20

@@ -1,0 +1,47 @@
+# Every blend mode at several opacities over noisy, partly transparent layers.
+doc 97 61
+noise 7 random
+layer-add
+noise 99 random
+layer-blend 1 Normal
+dump normal
+layer-opacity 1 128
+dump normal-128
+layer-opacity 1 255
+layer-blend 1 Multiply
+dump multiply
+layer-blend 1 Screen
+dump screen
+layer-blend 1 Overlay
+dump overlay
+layer-blend 1 Darken
+dump darken
+layer-blend 1 Lighten
+dump lighten
+layer-blend 1 Difference
+dump difference
+layer-blend 1 Add
+dump add
+layer-blend 1 ColorBurn
+dump colorburn
+layer-blend 1 ColorDodge
+layer-opacity 1 77
+dump colordodge-77
+layer-blend 1 Reflect
+dump reflect
+layer-blend 1 Glow
+dump glow
+layer-blend 1 Negation
+layer-opacity 1 200
+dump negation
+layer-blend 1 Xor
+dump xor
+layer-visible 1 0
+dump hidden
+layer-visible 1 1
+layer-add
+noise 3 opaque
+layer-opacity 2 1
+dump three-layers
+flatten
+dump flattened

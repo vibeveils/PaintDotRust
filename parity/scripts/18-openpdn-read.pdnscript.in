@@ -1,0 +1,7 @@
+# Reads the .openpdn written by the other engine (path in $OPENPDN_XDOC).
+load-openpdn-env OPENPDN_XDOC
+dump doc
+dump-layer layer0 0
+dump-layer layer1 1
+dump-layer layer2 2
+dump-meta doc

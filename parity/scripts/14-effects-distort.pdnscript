@@ -1,0 +1,42 @@
+# Distortions.
+doc 87 71
+pattern 6
+noise 71 random
+layer-add
+pattern 5
+layer-active 0
+effect polar 1.2 0.1 -0.1 Wrap 2
+dump polar-wrap
+effect polar 0.5 0 0 Reflect 3
+dump polar-reflect
+effect polar 2 0.3 0.3 Clamp 1
+dump polar-clamp
+effect polar 1 0 0 Original 2
+dump polar-original
+layer-active 1
+effect twist 45 0.8 0.1 0 2
+dump twist
+effect bulge 60 0.1 -0.2
+dump bulge
+effect bulge -80 0 0
+dump pinch
+effect tile 30 20 4 2
+dump tile
+effect tile -10 10 -6 1
+dump tile-neg
+layer-active 0
+effect spherize 70 80 10 -10 2
+dump spherize
+effect spherize -60 120 0 0 3
+dump spherize-neg
+effect waves Ripples 12 4 30 0 0 2
+dump waves-ripples
+effect waves Spiral 15 3 0 10 10 2
+dump waves-spiral
+effect waves Horizontal 9 5 90 0 0 1
+effect waves Vertical 11 3 0 0 0 1
+dump waves-hv
+effect waves Grid 13 2 10 0 0 2
+effect waves Zigzag 10 4 45 -20 0 2
+effect waves Organic 17 5 60 0 0 3
+dump waves-mix

@@ -1,0 +1,10 @@
+# PNG export of a 12 MP photo-like image (smooth gradient + mild noise), 3 times.
+doc 4000 3000
+noise 7 opaque
+effect gaussian 2
+layer-add
+pattern 300
+layer-opacity 1 120
+save-png a.png
+save-png b.png
+save-png c.png

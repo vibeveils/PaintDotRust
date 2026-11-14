@@ -1,0 +1,17 @@
+# Legacy Paint.NET .pdn reading (fixtures: python3 fixtures/make-pdn.py).
+load-pdn ../fixtures/pdn/deferred-gzip.pdn
+dump deferred-gzip
+dump-layer deferred-gzip-l0 0
+dump-meta deferred-gzip
+load-pdn ../fixtures/pdn/deferred-raw.pdn
+dump deferred-raw
+dump-layer deferred-raw-l0 0
+dump-meta deferred-raw
+load-pdn ../fixtures/pdn/inline-gzip.pdn
+dump inline-gzip
+dump-layer inline-gzip-l0 0
+dump-meta inline-gzip
+load-pdn ../fixtures/pdn/single.pdn
+dump single
+dump-layer single-l0 0
+dump-meta single

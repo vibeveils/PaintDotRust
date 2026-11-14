@@ -1,0 +1,17 @@
+# A spread of effects and adjustments on a 4 MP layer.
+doc 2400 1600
+noise 5 random
+adjust brightness-contrast 20 30
+adjust hue-sat 30 120 0
+adjust curves-lum 0:0,64:100,190:170,255:255
+effect gaussian 12
+effect motion 30 20 1
+effect median 4 50
+effect unfocus 6
+effect oil 3 50
+effect twist 45 0.8 0 0 2
+effect waves Ripples 20 5 0 0 0 2
+effect clouds 200 0.6 3 000000 FFFFFF Overlay
+effect stained 16 2 70 4 1 202020
+effect halftone Cmyk 6 0 000000 FFFFFF
+effect glow 6 10 10

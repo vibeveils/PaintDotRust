@@ -1,0 +1,27 @@
+# Clone stamp and recolor.
+doc 140 100
+pattern 11
+tool Clone Stamp
+set brush 11
+drag L 80 50 100 70 4
+dump clone-nosource
+down 20 20 L C
+drag L 70 40 120 80 10
+dump clone
+sel-rect 0 0 70 100
+down 100 10 L C
+drag L 30 60 60 90 6
+dump clone-sel
+sel-none
+tool Recolor
+fg 0000FF
+bg FF0000
+set tolerance 40
+set brush 15
+drag L 0 0 140 100 20
+dump recolor
+fg 00FF00
+drag R 0 100 140 0 10
+dump recolor-right
+undo
+dump recolor-undo

@@ -1,0 +1,12 @@
+# Long antialiased brush strokes with pressure on a 12 MP layer.
+doc 4000 3000
+noise 1 opaque
+tool Brush
+set brush 40
+pressure 0.8
+drag L 100 100 3900 2900 400
+drag L 3900 100 100 2900 400
+drag R 100 1500 3900 1500 400
+tool Eraser
+set eraser Checkerboard
+drag L 2000 100 2000 2900 300

@@ -1,0 +1,59 @@
+# Blurs, noise and neighbourhood effects.
+doc 83 67
+noise 51 random
+effect gaussian 3
+dump gaussian-3
+effect gaussian 0
+dump gaussian-0
+doc 83 67
+noise 52 random
+effect motion 25 9 1
+dump motion-centered
+effect motion 200 4 0
+dump motion-forward
+doc 83 67
+noise 53 random
+effect sharpen 2
+dump sharpen
+doc 83 67
+noise 54 random
+effect median 3 50
+dump median
+effect median 1 90
+dump median-90
+doc 83 67
+noise 55 opaque
+effect noise 64 100 80 7
+dump add-noise
+effect noise 30 0 100 0
+dump add-noise-gray
+doc 83 67
+noise 56 random
+effect pixelate 7
+dump pixelate
+doc 83 67
+noise 57 random
+effect unfocus 4
+dump unfocus
+doc 83 67
+noise 58 random
+effect fragment 4 8 45
+dump fragment
+doc 83 67
+noise 59 random
+effect radial 12 0.2 -0.1 2
+dump radial
+doc 83 67
+noise 60 random
+effect frosted 2 6 4 3
+dump frosted
+doc 83 67
+noise 61 random
+effect reduce-noise 4 0.6
+dump reduce-noise
+doc 83 67
+noise 62 random
+sel-ellipse 5 5 70 50
+sel-feather 3
+effect gaussian 5
+dump sel-gaussian

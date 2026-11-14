@@ -1,0 +1,59 @@
+# Pencil, brush (pressure, aa), eraser patterns.
+doc 160 120
+noise 3 opaque
+fg FF0000
+bg 00FF0080
+tool Pencil
+drag L 5 5 150 100 12
+drag R 150 5 5 110 7
+dump pencil
+sel-ellipse 20 20 120 80
+tool Brush
+set brush 9
+drag L 0 60 160 60 9
+set aa 0
+drag R 80 0 80 120 5
+set aa 1
+set alphablend 0
+fg 2040FF80
+drag L 10 10 140 110 6
+set alphablend 1
+dump brush-sel
+sel-none
+set pressure 1
+pressure 0.3
+down 20 100 L
+pressure 0.6
+move 60 90
+pressure 1
+move 100 95
+pressure 0.1
+move 140 105
+up 140 105 L
+dump brush-pressure
+set pressure 0
+pressure 0.2
+drag L 20 30 140 30 4
+dump brush-nopressure
+pressure 1
+tool Eraser
+set brush 15
+set eraser Solid
+drag L 10 50 150 50 5
+set eraser Horizontal
+drag L 10 70 150 70 5
+set eraser DiagonalCross
+drag L 10 90 150 90 5
+set eraser Checkerboard
+drag L 30 0 30 120 5
+set eraser Percent25
+drag L 60 0 60 120 5
+set eraser DottedGrid
+drag L 90 0 90 120 5
+set eraser BackwardDiagonal
+drag L 120 0 120 120 5
+dump eraser
+undo
+undo
+dump eraser-undo2
+colors paint

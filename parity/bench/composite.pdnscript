@@ -1,0 +1,18 @@
+# 12 MP, 4 layers, mixed blend modes, composited 5 times.
+doc 4000 3000
+noise 1 random
+layer-add
+noise 2 random
+layer-blend 1 Multiply
+layer-add
+noise 3 random
+layer-blend 2 Overlay
+layer-opacity 2 128
+layer-add
+noise 4 opaque
+layer-opacity 3 60
+composite
+composite
+composite
+composite
+composite

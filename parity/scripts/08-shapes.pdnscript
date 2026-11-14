@@ -1,0 +1,62 @@
+# Line, rectangle, rounded rectangle, ellipse, freeform in all modes.
+doc 170 130
+noise 9 opaque
+fg FF000080
+bg 00FF00
+set brush 5
+tool Line
+drag L 10 10 150 40 6
+drag R 20 120 160 20 4 S
+set aa 0
+drag L 5 60 165 70 3
+set aa 1
+dump lines
+tool Rectangle
+set shape Outline
+drag L 10 10 60 50 3
+set shape Fill
+drag R 70 10 120 60 3
+set shape FillOutline
+set brush 3
+drag L 120 70 20 120 3 S
+dump rects
+tool Rounded Rect
+set shape Outline
+set brush 4
+drag L 5 5 80 70 4
+set shape FillOutline
+drag L 90 50 160 125 4
+set alphablend 0
+set shape Fill
+drag R 30 80 70 120 2
+set alphablend 1
+dump rounded
+tool Ellipse
+set shape Outline
+set brush 7
+drag L 10 10 160 120 5
+set shape Fill
+sel-rect 40 30 90 70
+drag L 30 20 140 110 3
+sel-none
+set shape FillOutline
+set aa 0
+drag R 50 50 100 90 2
+set aa 1
+dump ellipses
+tool Freeform Shape
+set shape FillOutline
+down 20 20 L
+move 80 15
+move 140 60
+move 100 110
+move 30 90
+up 30 90 L
+set shape Fill
+down 120 10 R
+move 160 20
+move 150 50
+up 150 50 R
+dump freeform
+undo
+dump freeform-undo

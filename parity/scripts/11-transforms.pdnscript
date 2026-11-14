@@ -1,0 +1,46 @@
+# Image transforms and resampling.
+doc 101 67
+noise 17 random
+layer-add
+pattern 7
+layer-opacity 1 180
+dump base
+resize 160 120 Bilinear
+dump up-bilinear
+resize 63 41 SuperSampling
+dump down-super
+resize 90 90 NearestNeighbor
+dump nn
+resize 45 100 Best
+dump best-mixed
+resize 30 20 Best
+dump best-down
+doc 101 67
+noise 17 random
+rotate90cw
+dump r90cw
+rotate90ccw
+rotate90ccw
+dump r90ccw
+rotate180
+dump r180
+flip-h
+dump fliph
+flip-v
+dump flipv
+canvas 150 40 BottomRight
+dump canvas-br
+canvas 80 80 MiddleCenter
+dump canvas-mc
+sel-ellipse 5 5 60 50
+crop
+dump cropped
+sel-none
+autocrop
+dump autocrop
+doc 90 70
+noise 2 random
+rotate-zoom 33 1.3 0.1 -0.2 0
+dump rotzoom
+rotate-zoom -71 0.6 0 0 1
+dump rotzoom-tile

@@ -1,0 +1,59 @@
+# Artistic and print effects.
+doc 97 77
+pattern 8
+noise 91 random
+effect linocut 000000 F0E8D8 50 3 60 5
+dump linocut
+doc 97 77
+pattern 8
+noise 92 opaque
+effect pointillism 6 120 40 5 FFFFFF
+dump pointillism
+doc 97 77
+noise 93 random
+effect stained 12 2 70 4 1 202020
+dump stained
+effect stained 7 0 0 9 0 000000
+dump stained-plain
+doc 97 77
+noise 94 random
+effect mosaic 9 2 3 60 404040
+dump mosaic
+effect mosaic 5 0 0 0 000000
+dump mosaic-plain
+doc 97 77
+noise 95 random
+effect dither Bayer2 2 0 0
+dump bayer2
+doc 97 77
+noise 95 random
+effect dither Bayer8 4 1 0
+dump bayer8
+doc 97 77
+noise 95 random
+effect dither Bayer16 3 0 0
+dump bayer16
+doc 97 77
+noise 95 random
+effect dither Spiral 2 1 0
+dump spiral
+doc 97 77
+noise 95 random
+effect dither DualSpiral 2 1 0
+dump dualspiral
+doc 97 77
+noise 95 random
+effect dither BlueNoise 2 0 0
+dump bluenoise
+doc 97 77
+noise 95 random
+effect dither WhiteNoise 3 0 11
+dump whitenoise
+doc 97 77
+noise 96 random
+effect halftone Monochrome 6 45 000000 FFFFFF
+dump halftone-mono
+doc 97 77
+noise 97 random
+effect halftone Cmyk 5 0 000000 FFFFFF
+dump halftone-cmyk

@@ -1,0 +1,21 @@
+# Builds a layered document with metadata and saves it as .openpdn.
+# run.sh then has each engine read the other's file (18-openpdn-read.pdnscript).
+doc 131 97
+noise 3 random
+layer-add
+pattern 9
+layer-opacity 1 140
+layer-blend 1 Overlay
+layer-add
+noise 5 opaque
+layer-visible 2 0
+layer-blend 2 Difference
+meta Text Title Parity test
+meta CompressedText Comment squeezed words
+meta InternationalText Description Ünïcödé ✓ text
+save-openpdn doc.openpdn
+dump doc
+dump-layer layer0 0
+dump-layer layer1 1
+dump-layer layer2 2
+dump-meta doc

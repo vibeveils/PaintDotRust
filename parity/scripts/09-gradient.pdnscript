@@ -1,0 +1,31 @@
+# Gradient types and modes.
+doc 150 100
+noise 13 random
+fg FF8000
+bg 2000FF40
+tool Gradient
+drag L 10 10 140 90 4
+dump linear
+set gradient LinearReflected
+drag L 75 50 120 60 2
+dump reflected
+set gradient Diamond
+drag R 75 50 100 80 2
+dump diamond
+set gradient Radial
+drag L 40 40 90 70 3
+dump radial
+set gradient Conical
+drag L 75 50 75 10 2
+dump conical
+set gradmode Transparency
+set gradient Linear
+drag L 0 0 150 0 3
+dump transparency
+set alphablend 0
+set gradmode Color
+sel-ellipse 20 10 100 70
+set gradient Radial
+drag L 70 45 70 45 1
+drag L 70 45 120 45 1
+dump overwrite-sel

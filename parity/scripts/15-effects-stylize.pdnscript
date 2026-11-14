@@ -1,0 +1,46 @@
+# Stylize, photo and render effects.
+doc 79 61
+noise 81 random
+effect emboss 30
+dump emboss
+doc 79 61
+noise 82 random
+effect edge 45
+dump edge
+doc 79 61
+noise 83 random
+effect relief 135
+dump relief
+doc 79 61
+noise 84 random
+effect oil 3 50
+dump oil
+doc 79 61
+noise 85 random
+effect glow 5 10 10
+dump glow
+doc 79 61
+pattern 7
+noise 86 opaque
+effect ink 50 50
+dump ink
+doc 79 61
+noise 87 opaque
+effect pencil 2 0
+dump pencil
+doc 79 61
+noise 88 random
+effect soften 5 0 10
+dump soften
+doc 79 61
+noise 89 random
+effect clouds 60 0.55 17 000000 FFFFFF Normal
+dump clouds
+effect clouds 25 0.7 3 FF000080 0000FF Multiply
+dump clouds-multiply
+effect julia 4 1 15 2
+dump julia
+effect mandelbrot 1 0.1 30 2 0
+dump mandelbrot
+effect mandelbrot 3 0 0 3 1
+dump mandelbrot-inv

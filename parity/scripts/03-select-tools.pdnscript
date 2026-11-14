@@ -1,0 +1,53 @@
+# Interactive selection tools with modifiers and combine modes.
+doc 140 100
+pattern 13
+tool Rect Select
+drag L 10 10 60 50 5
+dump rect
+drag L 40 30 100 80 3 C
+dump rect-union
+drag L 50 40 70 60 2 A
+dump rect-subtract
+drag L 0 0 90 70 2 CA
+dump rect-intersect
+drag L 80 80 10 5 4 S
+dump rect-square
+down 5 5 L
+up 5 5 L
+dump rect-click-clears
+tool Ellipse Select
+drag L 20 15 110 85 6
+dump ellipse
+set combine Union
+drag L 0 0 40 40 3
+dump ellipse-union-mode
+set combine Replace
+tool Lasso
+down 10 10 L
+move 60 12
+move 90 40
+move 70 80
+move 40 70
+move 15 50
+move 12 30
+move 30 20
+up 30 20 L
+dump lasso
+undo
+dump lasso-undone
+redo
+dump lasso-redone
+tool Magic Wand
+set tolerance 0
+down 3 3 L
+up 3 3 L
+dump wand-0
+set tolerance 128
+down 100 60 L C
+up 100 60 L C
+dump wand-128-union
+set tolerance 32
+down 30 2 L A
+up 30 2 L A
+dump wand-subtract
+colors history

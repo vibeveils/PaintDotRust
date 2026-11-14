@@ -1,0 +1,26 @@
+# Move Selection: translate and handle resizes, with and without Shift.
+doc 150 110
+noise 5 opaque
+tool Lasso
+down 20 20 L
+move 70 15
+move 80 60
+move 50 75
+move 25 55
+up 25 55 L
+tool Move Selection
+drag L 40 40 55 48 3
+dump moved
+drag L 85 70 100 90 2
+dump resize-se
+drag L 50 50 30 30 2 S
+dump resize-shift
+undo
+undo
+dump undone
+sel-ellipse 10 10 60 40
+handle-radius 6
+drag L 40 10 40 0 2
+dump resize-n
+drag L 10 30 0 30 2 S
+dump resize-w-shift
