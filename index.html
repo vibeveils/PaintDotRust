@@ -1,0 +1,49 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="color-scheme" content="light dark">
+<title>PaintDotRust</title>
+<link rel="icon" href="favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="css/app.css">
+<link rel="modulepreload" href="js/main.js">
+</head>
+<body>
+<div id="app" class="app" hidden>
+  <header class="titlebar">
+    <nav class="menubar" id="menubar" role="menubar" aria-label="Main menu"></nav>
+    <div class="tabbar" id="tabbar" role="tablist" aria-label="Open images"></div>
+    <div class="title-actions">
+      <button class="icon-button" id="a11y-button" title="Accessibility options" aria-label="Accessibility options" aria-haspopup="dialog"></button>
+      <button class="icon-button" id="theme-button" title="Theme" aria-label="Theme"></button>
+    </div>
+  </header>
+  <div class="toolbar-row">
+    <div class="toolbar" id="common-toolbar" role="toolbar" aria-label="Common actions"></div>
+    <div class="toolbar options" id="tool-options" role="toolbar" aria-label="Tool options"></div>
+  </div>
+  <main class="workspace" id="workspace">
+    <div class="ruler ruler-h" id="ruler-h" hidden><canvas></canvas></div>
+    <div class="ruler ruler-v" id="ruler-v" hidden><canvas></canvas></div>
+    <div class="view" id="view" tabindex="0" aria-label="Image canvas"></div>
+  </main>
+  <footer class="statusbar" id="statusbar">
+    <span id="status-text" class="status-text">Ready</span>
+    <span class="status-cell" id="status-filter" hidden></span>
+    <span class="status-cell" id="status-sel" title="Selection size"></span>
+    <span class="status-cell" id="status-pos" title="Cursor position"></span>
+    <span class="status-cell" id="status-size" title="Image size"></span>
+    <span class="status-cell zoom-cell"><button class="icon-button small" id="zoom-out" aria-label="Zoom out"></button><input id="zoom-box" aria-label="Zoom" spellcheck="false"><button class="icon-button small" id="zoom-in" aria-label="Zoom in"></button></span>
+  </footer>
+</div>
+<div id="boot" class="boot">
+  <div class="boot-box">
+    <img src="favicon.svg" alt="" width="48" height="48">
+    <div id="boot-text">Loading PaintDotRust…</div>
+  </div>
+</div>
+<input type="file" id="file-input" hidden>
+<script type="module" src="js/main.js"></script>
+</body>
+</html>
