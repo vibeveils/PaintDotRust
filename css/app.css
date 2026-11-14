@@ -16,7 +16,11 @@
 * { box-sizing: border-box; }
 html, body { margin: 0; height: 100%; overflow: hidden; background: var(--bg); color: var(--text); font-family: var(--font); }
 button, input, select, textarea { font: inherit; color: inherit; }
-.app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto 1fr auto; height: 100%; }
+.app { display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto auto minmax(0, 1fr) auto; grid-template-areas: "title" "bar" "work" "status"; height: 100%; height: 100dvh; }
+.app > .titlebar { grid-area: title; } .app > .toolbar-row { grid-area: bar; } .app > .workspace { grid-area: work; } .app > .statusbar { grid-area: status; }
+/* No double-tap zoom or text selection on the chrome; the canvas handles its own touches. */
+.titlebar, .toolbar-row, .statusbar, .uw, .mobile-nav, .drawer { touch-action: manipulation; -webkit-user-select: none; user-select: none; -webkit-tap-highlight-color: transparent; }
+.uw input, .uw textarea, .dialog input, .dialog textarea { -webkit-user-select: text; user-select: text; }
 .app[hidden] { display: none; }
 .icon { fill: none; stroke: currentColor; stroke-width: 2; stroke-linecap: round; stroke-linejoin: round; flex: none; }
 
@@ -289,3 +293,139 @@ textarea { width: 100%; border: 1px solid var(--border); background: var(--panel
 .shortcuts { display: grid; grid-template-columns: auto 1fr; gap: 3px 16px; }
 .shortcuts kbd { font-family: ui-monospace, monospace; font-size: 12px; background: var(--panel-2); border: 1px solid var(--border); border-radius: 3px; padding: 0 4px; }
 .busy-overlay { position: absolute; right: 12px; bottom: 12px; background: var(--panel); border: 1px solid var(--border); border-radius: 6px; padding: 6px 10px; z-index: 30; }
+
+
+/* ------------------------------------------------------------------ responsive
+   Layouts (set on <html> by responsive.js): data-layout = desktop | tablet | phone,
+   data-touch when the main pointer is a finger, data-orient = portrait | landscape. */
+
+.pending-actions .icon-button.pending-ok { color: var(--accent); }
+#menu-button { display: none; }
+.mobile-nav { display: none; }
+
+/* Touch: controls big enough for a fingertip (about 40 px). */
+[data-touch] .icon-button { width: 38px; height: 36px; }
+[data-touch] .icon-button.small { width: 30px; height: 30px; }
+[data-touch] .toolbar { min-height: 46px; gap: 4px; }
+[data-touch] .toolbar select, [data-touch] .toolbar input[type=number], [data-touch] .tool-picker { height: 34px; }
+[data-touch] .toolbar input[type=range] { width: 110px; }
+[data-touch] .titlebar { height: 44px; }
+[data-touch] .tab { height: 34px; }
+[data-touch] .menubar > .menu-top > button { padding: 9px 12px; }
+[data-touch] .menu-item { padding: 10px 14px 10px 10px; }
+[data-touch] .window-toggles .icon-button { width: 38px; height: 34px; }
+[data-touch] .uw-title { min-height: calc(36px * var(--ui-scale, 1)); }
+[data-touch] .uw-rz[data-dir="e"] { right: -10px; width: 20px; }
+[data-touch] .uw-rz[data-dir="w"] { left: -10px; width: 20px; }
+[data-touch] .uw-rz[data-dir="s"] { bottom: -10px; height: 20px; }
+[data-touch] .uw-rz[data-dir="se"], [data-touch] .uw-rz[data-dir="sw"] { width: 26px; height: 26px; }
+[data-touch] .uw-rz[data-dir="se"] { right: -10px; bottom: -10px; }
+[data-touch] .uw-rz[data-dir="sw"] { left: -10px; bottom: -10px; }
+[data-touch] .tools-grid { grid-template-columns: repeat(auto-fill, 42px); gap: 4px; padding: 6px; }
+[data-touch] .tools-grid .icon-button { width: 42px; height: 40px; }
+[data-touch] .palette { grid-template-columns: repeat(auto-fill, 22px); gap: 2px; }
+[data-touch] .palette button { width: 22px; height: 22px; }
+[data-touch] .list li { padding: 8px 8px; }
+[data-touch] .statusbar { height: 34px; }
+[data-touch] .zoom-cell input { height: 28px; }
+[data-touch] .cslider { height: 22px; border-radius: 11px; }
+[data-touch] .cslider::-webkit-slider-thumb { width: 18px; height: 28px; }
+[data-touch] .cslider::-moz-range-thumb { width: 16px; height: 26px; }
+[data-touch] .channel-grid .num, [data-touch] .hex-row .hex, [data-touch] .palette-select, [data-touch] .more-button { height: 32px; }
+[data-touch] .dialog-buttons button { height: 40px; }
+[data-touch] .field input[type=text], [data-touch] .field select, [data-touch] .num { height: 36px; }
+[data-touch] .popup-menu .menu-item { padding: 10px 14px 10px 10px; }
+
+/* Narrow windows and tablets in portrait: the menus go behind a button so the tabs get the room. */
+[data-compact] #menu-button { display: inline-flex; flex: none; align-self: center; }
+[data-compact] .menubar { display: none; }
+
+/* ---- phones */
+[data-layout="phone"] .app { grid-template-rows: auto auto minmax(0, 1fr) auto; grid-template-areas: "title" "bar" "work" "nav"; }
+[data-layout="phone"] #menu-button { display: inline-flex; flex: none; align-self: center; }
+[data-layout="phone"] .menubar, [data-layout="phone"] .window-toggles, [data-layout="phone"] .title-sep,
+[data-layout="phone"] #common-toolbar, [data-layout="phone"] .statusbar { display: none; }
+[data-layout="phone"] .titlebar { gap: 4px; padding: 0 4px; padding-top: env(safe-area-inset-top); height: auto; min-height: 44px; }
+[data-layout="phone"] .tab { min-width: 72px; max-width: 160px; }
+[data-layout="phone"] .toolbar-row > #tool-options { flex-basis: 100%; }
+[data-layout="phone"] .toolbar-row { padding-left: env(safe-area-inset-left); padding-right: env(safe-area-inset-right); }
+
+/* Navigation bar along the bottom. */
+[data-layout="phone"] .mobile-nav { grid-area: nav; display: flex; align-items: stretch; justify-content: space-around; gap: 2px;
+  background: var(--panel-2); border-top: 1px solid var(--border); padding: 2px 4px calc(2px + env(safe-area-inset-bottom)); zoom: var(--ui-scale, 1); }
+.nav-button { flex: 1 1 0; min-width: 0; max-width: 84px; display: flex; flex-direction: column; align-items: center; justify-content: center; gap: 2px;
+  min-height: 52px; padding: 4px 2px; border: 0; border-radius: 10px; background: none; color: var(--muted); }
+.nav-button:disabled { opacity: 0.4; }
+.nav-button[aria-pressed="true"] { color: var(--accent); background: var(--active); }
+.nav-label { font-size: 11px; line-height: 1; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%; }
+.nav-icon { display: inline-flex; }
+.nav-sep { width: 1px; margin: 10px 2px; background: var(--border); flex: none; }
+.nav-swatches { position: relative; width: 24px; height: 22px; display: inline-block; }
+.nav-swatches i { position: absolute; width: 15px; height: 15px; border: 1px solid var(--border); border-radius: 3px;
+  background-image: repeating-conic-gradient(#ccc 0 25%, #fff 0 50%); background-size: 6px 6px; }
+.nav-swatches .p { left: 0; top: 0; z-index: 1; box-shadow: 0 0 0 1px var(--panel-2); }
+.nav-swatches .s { right: 0; bottom: 0; }
+
+/* Windows become sheets over the bottom of the image, one at a time. */
+[data-layout="phone"] .uw { left: 0 !important; right: 0 !important; top: auto !important; bottom: 0 !important; width: auto !important; height: auto !important;
+  max-height: 62% !important; transform: none !important; opacity: 1 !important; z-index: 40 !important;
+  border-radius: 14px 14px 0 0; border-width: 1px 0 0; box-shadow: 0 -8px 28px rgba(0,0,0,0.25); }
+[data-layout="phone"] .uw-rz { display: none; }
+[data-layout="phone"] .uw-title { cursor: default; min-height: calc(40px * var(--ui-scale, 1)); padding-left: 12px; position: relative; }
+/* A grab-bar look, so it reads as a sheet. */
+[data-layout="phone"] .uw-title::before { content: ""; position: absolute; left: 50%; top: 4px; width: 36px; height: 4px; margin-left: -18px; border-radius: 2px; background: var(--border); }
+[data-layout="phone"] .uw-history .uw-body, [data-layout="phone"] .uw-layers .uw-body { min-height: 120px; }
+[data-layout="phone"] .uw-foot { padding: 4px 8px; flex-wrap: wrap; }
+[data-layout="phone"] .tools-grid { grid-template-columns: repeat(auto-fill, 46px); justify-content: space-evenly; gap: 6px; padding: 8px; }
+[data-layout="phone"] .tools-grid .icon-button { width: 46px; height: 44px; }
+[data-layout="phone"] .colors-body.expanded { grid-template-columns: minmax(0, 1fr); }
+[data-layout="phone"] .color-editor { padding-left: 0; border-left: 0; padding-top: 10px; border-top: 1px solid var(--border); }
+[data-layout="phone"] .palette { grid-template-columns: repeat(auto-fill, 26px); gap: 3px; }
+[data-layout="phone"] .palette button { width: 26px; height: 26px; }
+
+/* Landscape phones: the bar runs down the right-hand side, sheets come in from the right. */
+[data-layout="phone"][data-orient="landscape"] .app { grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto auto minmax(0, 1fr);
+  grid-template-areas: "title nav" "bar nav" "work nav"; }
+[data-layout="phone"][data-orient="landscape"] .mobile-nav { flex-direction: column; justify-content: flex-start; overflow-y: auto; border-top: 0; border-left: 1px solid var(--border);
+  padding: calc(2px + env(safe-area-inset-top)) calc(2px + env(safe-area-inset-right)) calc(2px + env(safe-area-inset-bottom)) 2px; }
+[data-layout="phone"][data-orient="landscape"] .nav-button { flex: none; width: 60px; min-height: 46px; }
+[data-layout="phone"][data-orient="landscape"] .nav-sep { width: auto; height: 1px; margin: 2px 10px; }
+[data-layout="phone"][data-orient="landscape"] .titlebar { padding-left: env(safe-area-inset-left); }
+[data-layout="phone"][data-orient="landscape"] .uw { left: auto !important; top: 0 !important; width: min(340px, 70%) !important; max-height: none !important;
+  border-radius: 14px 0 0 14px; border-width: 0 0 0 1px; box-shadow: -8px 0 28px rgba(0,0,0,0.25); }
+[data-layout="phone"][data-orient="landscape"] .uw-title::before { display: none; }
+
+/* Menu drawer (phones). */
+.drawer-backdrop { position: fixed; inset: 0; z-index: 2500; background: rgba(0,0,0,0.32); }
+.drawer { position: absolute; top: 0; bottom: 0; left: 0; width: min(330px, 86vw); overflow-y: auto; overscroll-behavior: contain;
+  background: var(--panel); box-shadow: var(--shadow); zoom: var(--ui-scale, 1);
+  padding: env(safe-area-inset-top) 0 env(safe-area-inset-bottom) env(safe-area-inset-left); }
+@media (prefers-reduced-motion: no-preference) { .drawer { animation: drawer-in 0.16s ease-out; } }
+@keyframes drawer-in { from { transform: translateX(-100%); } }
+.drawer-head { display: flex; align-items: center; padding: 6px 6px 6px 16px; font-weight: 600; font-size: 15px; border-bottom: 1px solid var(--border); position: sticky; top: 0; background: var(--panel); z-index: 1; }
+.drawer-head span { flex: 1; }
+.drawer details > summary { list-style: none; }
+.drawer details > summary::-webkit-details-marker { display: none; }
+.drawer-item { display: flex; align-items: center; gap: 10px; width: 100%; min-height: 44px; padding: 8px 16px; border: 0; background: none; text-align: left; cursor: default; }
+.drawer-item:disabled { opacity: 0.4; }
+.drawer-item:active, .drawer-item:focus-visible { background: var(--active); outline: none; }
+.drawer-item .label { flex: 1; }
+.drawer-item .icon-slot { width: 20px; display: inline-flex; justify-content: center; color: var(--muted); }
+.drawer-heading { font-weight: 600; }
+.drawer details > summary::after { content: "›"; color: var(--muted); font-size: 18px; transition: transform 0.12s; }
+.drawer details[open] > summary::after { transform: rotate(90deg); }
+.drawer-top > .drawer-list { padding-bottom: 6px; background: var(--panel-2); }
+.drawer-sub > .drawer-list { padding-left: 18px; }
+.drawer .menu-sep { margin: 4px 16px; }
+
+/* Dialogs on small screens: full width, fields stack. */
+@media (max-width: 560px) {
+  .dialog { min-width: 0; width: calc(100vw - 16px) !important; max-height: calc(100dvh - 16px); }
+  .dialog-body { padding: 8px 12px; }
+  .dialog-buttons { flex-wrap: wrap; }
+  .dialog-buttons button { flex: 1 1 100px; }
+  .field { flex-wrap: wrap; }
+  .field > label:first-child { width: 100%; }
+  .picker { flex-wrap: wrap; }
+  .hint, .message { max-width: none; }
+}

@@ -8,6 +8,7 @@ import * as io from './io.js';
 import * as A11y from './a11y.js';
 import * as Pal from './palettes.js';
 import * as TE from './textedit.js';
+import * as R from './responsive.js';
 
 const $ = id => document.getElementById(id);
 const el = D.el;
@@ -202,7 +203,13 @@ const WINDOWS = {
   layers: { title: 'Layers', icon: 'window.layers', w: 210, h: 250, x: -8, y: -8, ax: 'right', ay: 'bottom', minW: 170, minH: 110 },
   colors: { title: 'Colors', icon: 'window.colors', w: 236, h: 0, x: 92, y: -8, ax: 'left', ay: 'bottom', minW: 200, autoHeight: true },
 };
+// Touch screens: tool buttons are bigger, so the Tools window starts wider.
+if (R.isTouchPrimary()) {
+  Object.assign(WINDOWS.tools, { w: 104, minW: 104 });
+  WINDOWS.colors.x = 120; // beside it
+}
 const winEls = {};
+const isPhone = () => app.layout === 'phone';
 /** Interface size factor (Accessibility). Window sizes are stored at 100% and shown scaled. */
 const uiK = () => (app.a11y?.uiScale ?? 100) / 100;
 let winZ = 20;
@@ -211,13 +218,16 @@ function loadLayout() {
   try { return JSON.parse(localStorage.getItem('openpdn.windows') || '{}'); } catch { return {}; }
 }
 function saveLayout() {
+  // Phone sheets open and close all the time: the desktop layout keeps its own visibility.
+  const prev = isPhone() ? loadLayout() : {};
   const out = {};
-  for (const [id, w] of Object.entries(winEls)) out[id] = { ...w.pos, visible: !w.el.hidden };
+  for (const [id, w] of Object.entries(winEls)) out[id] = { ...w.pos, visible: isPhone() ? prev[id]?.visible !== false : !w.el.hidden };
   try { localStorage.setItem('openpdn.windows', JSON.stringify(out)); } catch { /* private mode */ }
 }
 
 /** Places a window from its edge-relative position (keeps it anchored to its nearest edges). */
 function placeWindow(w) {
+  if (isPhone()) return; // sheets are placed by the style sheet
   const ws = $('workspace').getBoundingClientRect();
   const { x, y, ax, ay } = w.pos;
   const width = w.el.offsetWidth, height = w.el.offsetHeight;
@@ -252,6 +262,7 @@ function rescaleWindows() {
     if (!d.autoHeight) w.el.style.height = `${Math.max(d.minH ?? 0, w.pos.h) * k}px`;
     if (!w.el.hidden) placeWindow(w);
   }
+  if (app.layout) applyLayout();
 }
 
 /** The "selected" window stays opaque while others fade (see Accessibility). */
@@ -287,7 +298,7 @@ function snap1(v, size, targets) {
  * the final position is committed to left/top on release.
  */
 function windowDrag(e, w, dir) {
-  if (e.button !== 0) return;
+  if (e.button !== 0 || isPhone()) return;
   e.preventDefault();
   const node = w.el, def = WINDOWS[w.id], handle = e.currentTarget;
   const ws = $('workspace');
@@ -407,6 +418,8 @@ function makeWindow(id, body, foot) {
 function toggleWindow(id, show) {
   const w = winEls[id];
   w.el.hidden = !(show ?? w.el.hidden);
+  // Phones: one sheet at a time.
+  if (isPhone() && !w.el.hidden) for (const o of Object.values(winEls)) if (o !== w) o.el.hidden = true;
   if (!w.el.hidden) { placeWindow(w); raiseWindow(w); }
   saveLayout();
   updateMenus();
@@ -444,6 +457,75 @@ function buildWindowToggles() {
 }
 function syncWindowToggles() {
   for (const [id, b] of Object.entries(windowToggles)) b.setAttribute('aria-pressed', String(!!winEls[id] && !winEls[id].el.hidden));
+  for (const id of Object.keys(WINDOWS)) navEls[id]?.setAttribute('aria-pressed', String(!!winEls[id] && !winEls[id].el.hidden));
+}
+
+/**
+ * Picks the layout for the screen (see responsive.js): phones get sheets and a
+ * navigation bar instead of floating windows; touch screens get bigger controls.
+ */
+function applyLayout() {
+  const root = document.documentElement;
+  root.dataset.orient = innerWidth > innerHeight ? 'landscape' : 'portrait';
+  root.toggleAttribute('data-touch', R.isTouchPrimary());
+  root.toggleAttribute('data-compact', innerWidth / uiK() < 900);
+  const mode = R.detectLayout(uiK());
+  if (mode === app.layout) return;
+  const was = app.layout;
+  app.layout = mode;
+  root.dataset.layout = mode;
+  if (mode === 'phone') {
+    for (const w of Object.values(winEls)) w.el.hidden = true;
+  } else if (was === 'phone') {
+    const saved = loadLayout();
+    for (const [id, w] of Object.entries(winEls)) {
+      w.el.hidden = saved[id]?.visible === false;
+      if (!w.el.hidden) placeWindow(w);
+    }
+  }
+  document.querySelector('.drawer-backdrop')?.remove();
+  syncWindowToggles();
+  updateMenus();
+  app.view?.resize?.();
+}
+
+/** Phones: a bar along the bottom (or the side, in landscape) for the panels and the most used actions. */
+const navEls = {};
+function buildMobileNav() {
+  const nav = el('nav', { class: 'mobile-nav', id: 'mobile-nav', 'aria-label': 'Panels and actions' });
+  const btn = (key, label, content, fn, extra = {}) => {
+    const b = el('button', { class: 'nav-button', title: label, ...extra }, content, el('span', { class: 'nav-label' }, label));
+    b.addEventListener('click', fn);
+    navEls[key] = b;
+    nav.append(b);
+    return b;
+  };
+  btn('tools', 'Tools', el('span', { class: 'nav-icon' }, icon('tool.rect-select', 22)), () => toggleWindow('tools'), { 'aria-pressed': 'false' });
+  btn('colors', 'Colors', el('span', { class: 'nav-swatches', 'aria-hidden': 'true' }, el('i', { class: 's' }), el('i', { class: 'p' })), () => toggleWindow('colors'), { 'aria-pressed': 'false' });
+  btn('layers', 'Layers', icon('window.layers', 22), () => toggleWindow('layers'), { 'aria-pressed': 'false' });
+  btn('history', 'History', icon('window.history', 22), () => toggleWindow('history'), { 'aria-pressed': 'false' });
+  nav.append(el('span', { class: 'nav-sep' }));
+  btn('undo', 'Undo', icon('edit.undo', 22), () => run('undo'));
+  btn('redo', 'Redo', icon('edit.redo', 22), () => run('redo'));
+  // 100% ↔ fit to window.
+  btn('zoom', '100%', icon('view.fit', 22), () => (Math.abs(app.view.zoom - 1) < 1e-3 ? app.view.fit() : app.view.actualSize()), { 'aria-label': 'Zoom: toggle actual size / fit' });
+  $('app').append(nav);
+}
+
+/** Apply / Cancel for the line, shape, gradient, perspective or text being edited (no keyboard needed). */
+let pendingButtons = null;
+function buildPendingButtons() {
+  const ok = el('button', { class: 'icon-button pending-ok', title: 'Apply (Enter)', 'aria-label': 'Apply' }, icon('action.apply', 16));
+  const no = el('button', { class: 'icon-button', title: 'Cancel (Esc)', 'aria-label': 'Cancel' }, icon('action.cancel', 16));
+  ok.addEventListener('click', () => (app.textEdit ? textCommit() : run('shape_commit')));
+  no.addEventListener('click', () => (app.textEdit ? textCancel() : run('shape_cancel')));
+  pendingButtons = el('div', { class: 'opt-group pending-actions', role: 'group', 'aria-label': 'Finish editing', hidden: true }, ok, no);
+  const picker = $('tool-options').querySelector('.tool-picker');
+  (picker?.closest('.opt-group') ?? picker)?.after(pendingButtons);
+  if (!pendingButtons.isConnected) $('tool-options').prepend(pendingButtons);
+}
+function syncPendingButtons() {
+  if (pendingButtons) pendingButtons.hidden = !(app.state?.pending || app.textEdit);
 }
 
 // Tools window
@@ -474,6 +556,8 @@ async function selectTool(id) {
   app.view.requestOverlay();
   syncToolOptions();
   updateViewCursor();
+  // Phones: picking a tool closes the Tools sheet, out of the way of the image.
+  if (isPhone() && !winEls.tools?.el.hidden) toggleWindow('tools', false);
 }
 
 // History window
@@ -795,6 +879,8 @@ function renderColors() {
   const s = app.state.settings;
   colorsEls.prim.firstChild.style.background = cssColor(s.fg);
   colorsEls.sec.firstChild.style.background = cssColor(s.bg);
+  navEls.colors?.querySelector('.p')?.style.setProperty('background', cssColor(s.fg));
+  navEls.colors?.querySelector('.s')?.style.setProperty('background', cssColor(s.bg));
   colorsEls.prim.setAttribute('aria-label', `Primary color ${s.fg}`);
   colorsEls.sec.setAttribute('aria-label', `Secondary color ${s.bg}`);
   colorsEls.recent.replaceChildren(...s.recent.map(hex => swatchButton(hex, null, true)));
@@ -1306,6 +1392,7 @@ function syncToolPicker() {
   const chev = icon('chevron.down', 12);
   b.replaceChildren(icon(t.icon, 16), el('span', {}, t.label), chev);
   b.setAttribute('aria-label', `Tool: ${t.label}. Choose another tool`);
+  navEls.tools?.querySelector('.nav-icon')?.replaceChildren(icon(t.icon, 22));
 }
 
 function syncToolOptions() {
@@ -1508,6 +1595,7 @@ function updateMenus() {
     b.disabled = !f();
   }
   for (const b of document.querySelectorAll('#common-toolbar [data-toggle]')) b.setAttribute('aria-pressed', String(!!app.menuState[b.dataset.toggle]));
+  if (navEls.undo) { navEls.undo.disabled = !(st.history.applied > 0 || st.pending); navEls.redo.disabled = !(st.history.applied < st.history.items.length); }
 }
 
 function buildCommonToolbar() {
@@ -1582,7 +1670,7 @@ function pointerArgs(e, phase, p) {
     phase, x: p.x, y: p.y, button: e.button < 0 ? 0 : e.button,
     shift: e.shiftKey, ctrl: e.ctrlKey || e.metaKey, alt: e.altKey,
     pressure: pen ? Math.max(0.05, e.pressure || 0) : 1,
-    handleRadius: 6 / app.view.zoom,
+    handleRadius: (e.pointerType === 'touch' ? 14 : 6) / app.view.zoom, // fingers are less precise
   };
 }
 /** Distort brush held still: keep applying it (one request in flight at a time). */
@@ -1609,12 +1697,12 @@ function updateViewCursor() {
 function wireCanvas() {
   const host = app.view.host;
   host.addEventListener('contextmenu', e => e.preventDefault());
-  host.addEventListener('pointerdown', async e => {
+  const begin = async e => {
     activateWindow(null);
     host.focus();
     app.closeMenus?.();
     const p = imagePoint(e);
-    host.setPointerCapture(e.pointerId);
+    try { host.setPointerCapture(e.pointerId); } catch { /* pointer already gone */ }
     drag.active = true;
     drag.button = e.button;
     drag.last = { x: e.clientX, y: e.clientY };
@@ -1648,8 +1736,8 @@ function wireCanvas() {
     if (app.tool === 'lasso') { drag.lasso = [[p.x, p.y]]; app.view.lasso = drag.lasso; }
     run('pointer', pointerArgs(e, 'down', p));
     if (app.tool === 'distort') holdRepeat(pointerArgs(e, 'move', p));
-  });
-  host.addEventListener('pointermove', e => {
+  };
+  const onMove = e => {
     const p = imagePoint(e);
     const st = app.state;
     if (st && p.fx >= 0 && p.fy >= 0 && p.fx < st.width && p.fy < st.height) $('status-pos').textContent = `${p.x}, ${p.y}`;
@@ -1685,7 +1773,7 @@ function wireCanvas() {
       if (drag.hold) drag.hold.args = args;
       run('pointer', args);
     }
-  });
+  };
   const end = e => {
     if (!drag.active) return;
     drag.active = false;
@@ -1707,8 +1795,82 @@ function wireCanvas() {
     drag.mode = null;
     updateViewCursor();
   };
-  host.addEventListener('pointerup', end);
-  host.addEventListener('pointercancel', end);
+
+  // Touch: one finger uses the tool, starting a moment after it lands (or as
+  // soon as it moves) so that a second finger can turn it into a gesture
+  // instead; two fingers pinch to zoom and drag to pan; a quick tap with two
+  // fingers undoes, with three redoes. Pens and mice start straight away.
+  const touches = new Map();
+  let deferred = null, gesture = null, lastTouch = null;
+  const flush = () => { const d = deferred; deferred = null; if (d) { clearTimeout(d.timer); begin(d.e); } };
+  const pair = () => {
+    const [a, b] = touches.values();
+    return { d: Math.max(1, Math.hypot(a.x - b.x, a.y - b.y)), m: { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 } };
+  };
+  host.addEventListener('pointerdown', e => {
+    if (e.pointerType !== 'touch') { begin(e); return; }
+    try { host.setPointerCapture(e.pointerId); } catch { /* ignore */ }
+    touches.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    if (touches.size >= 2) {
+      if (deferred) { clearTimeout(deferred.timer); deferred = null; }
+      else if (drag.active && lastTouch) end(lastTouch); // a stroke already under way is kept
+      if (!gesture) {
+        const p = pair();
+        gesture = { d0: p.d, z0: app.view.zoom, m: p.m, m0: p.m, t0: performance.now(), moved: false, n: 2 };
+      }
+      gesture.n = Math.max(gesture.n, touches.size);
+      return;
+    }
+    if (gesture) return; // the rest of a gesture: ignored until all fingers are up
+    lastTouch = e;
+    // Text needs the tap itself to bring up the keyboard; pan/zoom have nothing to undo.
+    if (['text', 'pan', 'zoom'].includes(app.tool)) { begin(e); return; }
+    deferred = { e, id: e.pointerId, timer: setTimeout(flush, 120) };
+  });
+  host.addEventListener('pointermove', e => {
+    if (e.pointerType === 'touch') {
+      const t = touches.get(e.pointerId);
+      if (t) { t.x = e.clientX; t.y = e.clientY; }
+      if (gesture) {
+        if (touches.size < 2) return;
+        const p = pair();
+        if (!gesture.moved && (Math.abs(p.d - gesture.d0) > 10 || Math.hypot(p.m.x - gesture.m0.x, p.m.y - gesture.m0.y) > 10)) gesture.moved = true;
+        if (!gesture.moved) return;
+        app.view.panBy(p.m.x - gesture.m.x, p.m.y - gesture.m.y);
+        const r = host.getBoundingClientRect();
+        app.view.setZoom(gesture.z0 * p.d / gesture.d0, p.m.x - r.left, p.m.y - r.top);
+        gesture.m = p.m;
+        return;
+      }
+      if (deferred?.id === e.pointerId) {
+        if (Math.hypot(e.clientX - deferred.e.clientX, e.clientY - deferred.e.clientY) < 8) return;
+        flush();
+      }
+      lastTouch = e;
+    }
+    onMove(e);
+  });
+  const up = e => {
+    if (e.pointerType === 'touch') {
+      touches.delete(e.pointerId);
+      if (gesture) {
+        if (touches.size === 0) {
+          if (!gesture.moved && performance.now() - gesture.t0 < 400 && e.type === 'pointerup') run(gesture.n >= 3 ? 'redo' : 'undo');
+          gesture = null;
+        }
+        return;
+      }
+      if (deferred?.id === e.pointerId) {
+        if (e.type === 'pointercancel') { clearTimeout(deferred.timer); deferred = null; return; }
+        flush(); // a tap
+      }
+      app.view.cursor = null; // no hover outline left behind by a finger
+      app.view.requestOverlay();
+    }
+    end(e);
+  };
+  host.addEventListener('pointerup', up);
+  host.addEventListener('pointercancel', up);
   host.addEventListener('pointerleave', () => { app.view.cursor = null; app.view.requestOverlay(); });
   host.addEventListener('wheel', e => {
     e.preventDefault();
@@ -1815,6 +1977,7 @@ function textMove(p) {
 }
 
 function textRender() {
+  syncPendingButtons();
   const te = app.textEdit;
   if (!te) { app.view.textBox = null; app.view.requestOverlay(); return; }
   te.text = te.input.value;
@@ -1843,6 +2006,7 @@ function textRender() {
 function textEnd() {
   if (app.textEdit) app.textEdit.input.blur();
   app.textEdit = null;
+  queueMicrotask(syncPendingButtons);
   app.view.textBox = null;
   app.view.requestOverlay();
 }
@@ -1861,6 +2025,7 @@ function textCancel() {
 
 /** Called with each state: follows engine-side commits and colour changes. */
 function syncPending(st, prev) {
+  queueMicrotask(syncPendingButtons);
   const pend = st.pending;
   app.view.shapeEdit = ['line', 'shape', 'gradient', 'quad'].includes(pend?.kind) ? pend : null;
   // A gradient stop was selected: show its color as the primary color, so
@@ -1889,7 +2054,7 @@ function nearGrip(e, which = 'shapeGrip') {
   const g = app.view[which];
   if (!g || (which === 'shapeGrip' && !['line', 'gradient'].includes(app.state?.pending?.kind))) return false;
   const r = app.view.host.getBoundingClientRect();
-  return Math.hypot(e.clientX - r.left - g.x, e.clientY - r.top - g.y) <= 12;
+  return Math.hypot(e.clientX - r.left - g.x, e.clientY - r.top - g.y) <= (e.pointerType === 'touch' ? 24 : 12);
 }
 
 /** Cursor over a pending box shape: resize arrows on handles (following the rotation), grab, move. */
@@ -2445,7 +2610,11 @@ function wireTheme() {
 
 function wireZoomBox() {
   const box = $('zoom-box');
-  const show = () => { if (document.activeElement !== box) box.value = `${Math.round(app.view.zoom * 1000) / 10}%`; };
+  const show = () => {
+    if (document.activeElement !== box) box.value = `${Math.round(app.view.zoom * 1000) / 10}%`;
+    const nl = navEls.zoom?.querySelector('.nav-label');
+    if (nl) nl.textContent = `${Math.round(app.view.zoom * 100)}%`;
+  };
   app.view.onChange(() => { show(); drawRulers(); });
   box.addEventListener('change', () => { const v = parseFloat(box.value); if (v > 0) app.view.setZoom(v / 100); box.blur(); show(); });
   $('zoom-in').append(icon('view.zoom-in', 12));
@@ -2478,6 +2647,15 @@ async function boot() {
   buildLayersWindow();
   buildColorsWindow();
   buildWindowToggles();
+  buildMobileNav();
+  buildPendingButtons();
+  const menuBtn = el('button', { class: 'icon-button', id: 'menu-button', title: 'Menu', 'aria-label': 'Menu', 'aria-haspopup': 'dialog' }, icon('app.menu', 18));
+  menuBtn.addEventListener('click', () => R.openMenuDrawer(menuDefs, { el, icon }));
+  $('menubar').before(menuBtn);
+  applyLayout();
+  let layoutRaf = 0;
+  addEventListener('resize', () => { if (!layoutRaf) layoutRaf = requestAnimationFrame(() => { layoutRaf = 0; applyLayout(); }); });
+  matchMedia('(pointer: coarse)').addEventListener?.('change', applyLayout);
   $('a11y-button').append(icon('app.accessibility', 16));
   $('a11y-button').addEventListener('click', accessibilityDialog);
   wireCanvas();
